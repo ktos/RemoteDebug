@@ -103,18 +103,6 @@
 // Uncomment this to disable it
 //#define WEBSOCKET_DISABLED true
 
-///////////// For RemoteDebugWS ///////////////////
-
-#ifndef WEBSOCKET_DISABLED
-
-// Websocket port
-#define WEBSOCKET_PORT 8232
-
-// Library arduinoWebSockets already installed, uncomment to use it
-// Do this if you receive errors of multiple definition ...
-//#define USE_LIB_WEBSOCKET true
-#endif
-
 ///////////// For RemoteDebugger ///////////////////
 
 // Enable Flash variables support - F()

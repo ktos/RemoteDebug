@@ -281,13 +281,6 @@ class RemoteDebug: public Print
 	WiFiClient* getTelnetClient();
 #endif
 
-#ifndef WEBSOCKET_DISABLED // For web socket server (app)
-	void wsOnReceive(const char* command);
-	void wsSendInfo();
-	void wsSendLevelInfo();
-#endif
-	boolean wsIsConnected();
-
 	// Print
 
 	virtual size_t write(uint8_t);

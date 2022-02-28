@@ -1069,7 +1069,7 @@ size_t RemoteDebug::write(uint8_t character) {
 		if (noPrint == false) {
 
 #ifdef COLOR_NEW_SYSTEM
-			_bufferPrint.concat(COLOR_RESET);
+			if (_showColors) _bufferPrint.concat(COLOR_RESET);
 #endif
 			// Send to telnet or websocket (buffered)
 

@@ -632,7 +632,6 @@ boolean RemoteDebug::isConnected() {
 void RemoteDebug::setSerialEnabled(boolean enable) {
 
 	_serialEnabled = enable;
-	_showColors = false; // Disable it for Serial
 
 }
 
@@ -672,11 +671,7 @@ void RemoteDebug::showDebugLevel(boolean show) {
 // Show colors
 
 void RemoteDebug::showColors(boolean show) {
-	if (_serialEnabled == false) {
-		_showColors = show;
-	} else {
-		_showColors = false; // Disable it for Serial
-	}
+	_showColors = show;
 }
 
 // Show in raw mode - only data ?

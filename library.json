@@ -1,13 +1,13 @@
 {
-  "name": "RemoteDebug",
+  "name": "ktos-RemoteDebug",
   "keywords": "Debug, Remote, Telnet, WiFi",
-  "description": "A library for Arduino to debug projects over WiFi, with web app or telnet client, with Print commands like Serial Monitor.",
+  "description": "A (forked) library for Arduino to debug projects over WiFi, with web app or telnet client, with Print commands like Serial Monitor.",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/JoaoLopesF/RemoteDebug.git"
+    "url": "https://github.com/ktos/RemoteDebug.git"
   },
-  "version": "3.0.5",
+  "version": "3.0.6",
   "frameworks": "arduino",
   "platforms": "*"
 }

@@ -1,21 +1,11 @@
-# RemoteDebug Library
+# RemoteDebug Library (fork)
 
-A library for Arduino to debug projects over WiFi, with web app or telnet client,
+This is a custom fork - original library is available at <https://github.com/JoaoLopesF/RemoteDebug>!
+
+A fork of library for Arduino to debug projects over WiFi, with web app or telnet client,
 with Print commands like Serial Monitor.
 
 ![logo](extras/readme_media/logo.png)
-
-[![arduino-library-badge](https://www.ardu-badge.com/badge/RemoteDebug.svg?)](https://www.ardu-badge.com/RemoteDebug)
-[![GitHub release](https://img.shields.io/github/release/JoaoLopesF/RemoteDebug.svg)](#releases)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3eadfd19246f4808907cf53599a6b9f0)](https://www.codacy.com/app/JoaoLopesF/RemoteDebug?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JoaoLopesF/RemoteDebug&amp;utm_campaign=Badge_Grade)
-[![platform badge](https://img.shields.io/badge/platform-Arduino|Espressif-orange.svg)](https://github.com/arduino)
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/JoaoLopesF/RemoteDebug/blob/master/LICENSE.txt)  
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#github)
-[![GitHub issues](https://img.shields.io/github/issues/JoaoLopesF/RemoteDebug.svg)](http://github.com/JoaoLopesF/RemoteDebug/issues)
-[![star this repo](http://githubbadges.com/star.svg?user=JoaoLopesF&repo=RemoteDebug)](http://github.com/JoaoLopesF/RemoteDebug)
-<!-- ![build badge](https://img.shields.io/github/stars/JoaoLopesF/RemoteDebug.svg?style=social) -->
-
-![remotedebugapp](extras/readme_media/remotedebugapp.png)
 
 ## A library to remotely debug over a WiFi connection by telnet or web browser
 
@@ -28,7 +18,6 @@ with Print commands like Serial Monitor.
 - [Github](#github)
 - [News](#news)
 - [Benefits](#benefits)
-- [HTML5 web app](#web-app)
 - [Telnet client](#telnet)
 - [Wishlist](#wishlist)
 - [Install](#install)
@@ -72,10 +61,6 @@ and we will see if it is possible made the port for your board.
 
 ## How it looks
 
-Image: In RemoteDebugApp (web app)
-
-![webapp](extras/readme_media/remotedebug_webapp.png)
-
 Image: In telnet client
 
 ![remotedebug_v2](extras/readme_media/remotedebug_v2.png)
@@ -97,52 +82,6 @@ this help an another people, discover it too.
 
 Please add an issue for problems or suggestion.
 
-## News
-
-- RemoteDebugApp Beta
-
-  - Now have another repository, [RemoteDebugApp](https://github.com/JoaoLopesF/RemoteDebugApp)
-    It is for local copy of web app in internet.
-    It is updated with lastest version of web app,
-    after it is publised in web server: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp/).
-    Download it, for use when internet is offline.
-    As it is a local copy, the app will check for new versions periodically.
-
-  - An HTML5 web app to use for debugging in web browser, instead telnet client,
-    that uses web socket to comunicate.
-
-  - Now RemoteDebug v3 have a web socket server too,
-    to support the RemoteDebugApp connection.
-
-  - RemoteDebugApp is in beta,
-    if you have any problems or suggestions, please add issue about this.
-
-  - The telnet connection remains, to any want this,
-    or to internet offline uses.
-
-- Version 2.1.1
-
-  - Now __RemoteDebug__ have a code converter, for help you to convert your codes:
-    to do it, please access the [RemoteDebugConverter](https://github.com/JoaoLopesF/RemoteDebugConverter)
-
-- Version 2.0.0
-
-  - Now __RemoteDebug__ can have the same simple software debugger, that __SerialDebug__ library have.
-    This is done, installing another library, the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__
-    The __RemoteDebugger__ act as an add on to __RemoteDebug__.
-    To support this addon, the changes in __RemoteDebug__, is minimum, just a few callbacks
-    It is done to no add extra overhead to projects that no need an debugger.
-    To more informations please access the __[RemoteDebugger](https://github.com/JoaoLopesF/RemoteDebugger)__ github repository.
-
-  - Now __RemoteDebug__ have a new color system, using more colors, as done in __SerialDebugApp__
-
-   Note: due the __RemoteDebug__ library, is migrate to Arduino 1.5 format, with folder "src",
-         please delete and reinstall the library to avoid duplication of RemoteDebug sources files.
-
-- Version 1.5.*
-
-    In 1.5.0 version, we have debug* and rdebug* macros (see below), that put automatically,
-    the name of function that called, and core id (core id is only for ESP32)
 
 ## Benefits
 
@@ -262,43 +201,6 @@ __SerialDebug__ is better than Arduino default debugging by Serial.print command
     Done this, and no more debug processing.
     And better for DEBUG_DISABLED, __RemoteDebug__ have ZERO overhead,
     due is nothing of this is compiled.
-
-## Web app
-
-As SerialDebug, now RemoteDebug (v3) have an app,the RemoteDebugApp,
-to debug in web browser.
-
-This app is an HTM5 web app, with websocket to comunicate to Arduino board.  
-For it, RemoteDebug v3 have a web socket server (can be disabled).
-It used a local copy of [arduinoWebSockets](https://github.com/Links2004/arduinoWebSockets) library,
-due it not in Arduino Library manager.
-
-As a large web page on web server, the solution for Arduino is save it in a storage,
-like SPIFFS. But not have automatically updates new version in data saved this way,
-this SPIFFS data is good for a project but not for a library.
-
-Due it, this app not is stored and served by board,
-instead the app is in web: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp)
-Note: this not uses SSL (https), due web server socket on Arduino, not supports SSL (wss).
-But after page load, all traffic is in local network, no data is exposed on internet.
-
-The RemoteDebugApp is a modern HTML5 and needs a modern browsers to work.
-Internet Explorer 11 and Safari 10 are an examples that not supported.
-But you can use anothers, as Chrome, Edge, Firefox.
-
-The web app is in beta, please add an issue,
-for problems or suggestions.
-
-Now have another repository, [RemoteDebugApp](https://github.com/JoaoLopesF/RemoteDebugApp)
-It is for local copy of web app in internet.
-It is updated with lastest version of web app,
-after it is publised in web server: [http://joaolopesf.net/remotedebugapp](http://joaolopesf.net/remotedebugapp/).
-Download it, for use when internet is offline.
-As it is a local copy, the app will check for new versions periodically,
-for you can download a new version.
-
-The telnet remains work, for when want this,
-or for fails on web app.
 
 ## Telnet
 

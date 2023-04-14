@@ -98,8 +98,9 @@
 
 #if defined(ESP8266)
 // ESP8266 SDK
-extern "C" {
-bool system_update_cpu_freq(uint8_t freq);
+extern "C"
+{
+	bool system_update_cpu_freq(uint8_t freq);
 }
 #endif
 
@@ -127,7 +128,7 @@ bool system_update_cpu_freq(uint8_t freq);
 
 #endif
 
-#include "RemoteDebug.h"		// This library
+#include "RemoteDebug.h" // This library
 
 #ifdef ALPHA_VERSION // In test, not good yet
 #include "telnet.h"
@@ -135,37 +136,44 @@ bool system_update_cpu_freq(uint8_t freq);
 
 // Internal print macros for send messages to client
 
-#define debugPrintf(fmt, ...) { \
-	if (_connected) TelnetClient.printf(fmt, ##__VA_ARGS__);\
-}
-#define debugPrintln(str) { \
-	if (_connected) TelnetClient.println(str);\
-}
-#define debugPrint(str) { \
-	if (_connected) TelnetClient.print(str);\
-}
+#define debugPrintf(fmt, ...)                        \
+	{                                                \
+		if (_connected)                              \
+			TelnetClient.printf(fmt, ##__VA_ARGS__); \
+	}
+#define debugPrintln(str)              \
+	{                                  \
+		if (_connected)                \
+			TelnetClient.println(str); \
+	}
+#define debugPrint(str)              \
+	{                                \
+		if (_connected)              \
+			TelnetClient.print(str); \
+	}
 
 // Internal debug macro - recommended stay disable
 
-#define D(fmt, ...) 													// Without this
-//#define D(fmt, ...) Serial.printf("rd: " fmt "\n", ##__VA_ARGS__) 	// Serial debug
+#define D(fmt, ...) // Without this
+// #define D(fmt, ...) Serial.printf("rd: " fmt "\n", ##__VA_ARGS__) 	// Serial debug
 
 ////// Variables
 
 // Instance
 
-static RemoteDebug* _instance;
+static RemoteDebug *_instance;
 
 // WiFi server (telnet)
 
 static WiFiServer TelnetServer(TELNET_PORT); // @suppress("Abstract class cannot be instantiated")
-static WiFiClient TelnetClient; // @suppress("Abstract class cannot be instantiated")
+static WiFiClient TelnetClient;				 // @suppress("Abstract class cannot be instantiated")
 
 ////// Methods / routines
 
 // Constructor
 
-RemoteDebug::RemoteDebug() {
+RemoteDebug::RemoteDebug()
+{
 
 	// Save the instance
 
@@ -174,18 +182,21 @@ RemoteDebug::RemoteDebug() {
 
 // Initialize the telnet server
 
-bool RemoteDebug::begin(String hostName, uint8_t startingDebugLevel) {
+bool RemoteDebug::begin(String hostName, uint8_t startingDebugLevel)
+{
 	return begin(hostName, TELNET_PORT, startingDebugLevel);
 }
 
-bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLevel) {
+bool RemoteDebug::begin(String hostName, uint16_t port, uint8_t startingDebugLevel)
+{
 
 	// Initialize server telnet
 
-	if (port != TELNET_PORT) { // Bug: not more can use begin(port)..
-	    return false;
+	if (port != TELNET_PORT)
+	{ // Bug: not more can use begin(port)..
+		return false;
 	}
-	
+
 	TelnetServer.begin();
 	TelnetServer.setNoDelay(true);
 
@@ -214,7 +225,8 @@ bool RemoteDebug::begin(String hostName, uint16_t port,  uint8_t startingDebugLe
 
 #ifdef DEBUGGER_ENABLED
 // Simple software debugger - based on SerialDebug Library
-void RemoteDebug::initDebugger(boolean (*callbackEnabled)(), void (*callbackHandle)(const boolean), String (*callbackGetHelp)(), void (*callbackProcessCmd)()) {
+void RemoteDebug::initDebugger(boolean (*callbackEnabled)(), void (*callbackHandle)(const boolean), String (*callbackGetHelp)(), void (*callbackProcessCmd)())
+{
 
 	// Init callbacks for the debugger
 
@@ -222,10 +234,10 @@ void RemoteDebug::initDebugger(boolean (*callbackEnabled)(), void (*callbackHand
 	_callbackDbgHandle = callbackHandle;
 	_callbackDbgHelp = callbackGetHelp;
 	_callbackDbgProcessCmd = callbackProcessCmd;
-
 }
 
-WiFiClient* RemoteDebug::getTelnetClient() {
+WiFiClient *RemoteDebug::getTelnetClient()
+{
 
 	return &TelnetClient;
 }
@@ -234,19 +246,21 @@ WiFiClient* RemoteDebug::getTelnetClient() {
 
 // Set the password for telnet - thanks @jeroenst for suggest thist method
 
-void RemoteDebug::setPassword(String password) {
+void RemoteDebug::setPassword(String password)
+{
 
 	_password = password;
-
 }
 
 // Destructor
 
-RemoteDebug::~RemoteDebug() {
+RemoteDebug::~RemoteDebug()
+{
 
 	// Flush
 
-	if (TelnetClient && TelnetClient.connected()) {
+	if (TelnetClient && TelnetClient.connected())
+	{
 		TelnetClient.flush();
 	}
 
@@ -257,24 +271,26 @@ RemoteDebug::~RemoteDebug() {
 
 // Stop the server
 
-void RemoteDebug::stop() {
+void RemoteDebug::stop()
+{
 
 	// Stop Client
 
-	if (TelnetClient && TelnetClient.connected()) {
+	if (TelnetClient && TelnetClient.connected())
+	{
 		TelnetClient.stop();
 	}
 
 	// Stop server
 
 	TelnetServer.stop();
-
 }
 
 // Handle the connection (in begin of loop in sketch)
 // TODO: optimize when loop not have a large delay
 
-void RemoteDebug::handle() {
+void RemoteDebug::handle()
+{
 
 #ifdef ALPHA_VERSION // In test, not good yet
 	static uint32_t lastTime = millis();
@@ -282,12 +298,13 @@ void RemoteDebug::handle() {
 
 #ifdef DEBUGGER_ENABLED
 	static uint32_t dbgTimeHandle = millis(); // To avoid call the handler desnecessary
-	static boolean dbgLastConnected = false; // Last is connected ?
+	static boolean dbgLastConnected = false;  // Last is connected ?
 #endif
 
 	// Silence timeout ?
 
-	if (_silence && _silenceTimeout > 0 && millis() >= _silenceTimeout) {
+	if (_silence && _silenceTimeout > 0 && millis() >= _silenceTimeout)
+	{
 
 		// Get out of silence mode
 
@@ -296,8 +313,10 @@ void RemoteDebug::handle() {
 
 	// Debug level is profiler -> set the level before
 
-	if (_clientDebugLevel == PROFILER) {
-		if (millis() > _levelProfilerDisable) {
+	if (_clientDebugLevel == PROFILER)
+	{
+		if (millis() > _levelProfilerDisable)
+		{
 			_clientDebugLevel = _levelBeforeProfiler;
 			debugPrintln("* Debug level profile inactive now");
 		}
@@ -307,11 +326,13 @@ void RemoteDebug::handle() {
 
 	// Automatic change to profiler level if time between handles is greater than n millis
 
-	if (_autoLevelProfiler > 0 && _clientDebugLevel != PROFILER) {
+	if (_autoLevelProfiler > 0 && _clientDebugLevel != PROFILER)
+	{
 
 		uint32_t diff = (millis() - lastTime);
 
-		if (diff >= _autoLevelProfiler) {
+		if (diff >= _autoLevelProfiler)
+		{
 			_levelBeforeProfiler = _clientDebugLevel;
 			_clientDebugLevel = PROFILER;
 			_levelProfilerDisable = 1000; // Disable it at 1 sec
@@ -325,21 +346,23 @@ void RemoteDebug::handle() {
 
 	// look for Client connect trial
 
-	if (TelnetServer.hasClient()) {
+	if (TelnetServer.hasClient())
+	{
 
 		// Old connection logic
 
-//      if (!TelnetClient || !TelnetClient.connected()) {
-//
-//        if (TelnetClient) { // Close the last connect - only one supported
-//
-//          TelnetClient.stop();
-//
-//        }
+		//      if (!TelnetClient || !TelnetClient.connected()) {
+		//
+		//        if (TelnetClient) { // Close the last connect - only one supported
+		//
+		//          TelnetClient.stop();
+		//
+		//        }
 
 		// New connection logic - 10/08/17
 
-		if (TelnetClient && TelnetClient.connected()) {
+		if (TelnetClient && TelnetClient.connected())
+		{
 
 			// Verify if the IP is same than actual conection
 
@@ -347,24 +370,26 @@ void RemoteDebug::handle() {
 			newClient = TelnetServer.available();
 			String ip = newClient.remoteIP().toString();
 
-			if (ip == TelnetClient.remoteIP().toString()) {
+			if (ip == TelnetClient.remoteIP().toString())
+			{
 
 				// Reconnect
 
 				TelnetClient.stop();
 				TelnetClient = newClient;
-
-			} else {
+			}
+			else
+			{
 
 				// Disconnect (not allow more than one connection)
 
 				newClient.stop();
 
 				return;
-
 			}
-
-		} else {
+		}
+		else
+		{
 
 			// New TCP client
 
@@ -372,39 +397,40 @@ void RemoteDebug::handle() {
 
 			// Password request ? - 18/07/18
 
-			if (_password != "") {
+			if (_password != "")
+			{
 
-	#ifdef ALPHA_VERSION // In test, not good yet
+#ifdef ALPHA_VERSION // In test, not good yet
 				// Send command to telnet client to not do local echos
 				// Experimental code !
 
 				sendTelnetCommand(TELNET_WONT, TELNET_ECHO);
-	#endif
-
+#endif
 			}
 		}
 
-		if (!TelnetClient) { // No client yet ???
+		if (!TelnetClient)
+		{ // No client yet ???
 			return;
 		}
 
 		// Set client
 
 		TelnetClient.setNoDelay(true); // More faster
-		TelnetClient.flush(); // clear input buffer, else you get strange characters
+		TelnetClient.flush();		   // clear input buffer, else you get strange characters
 
 		// Empty buffer
 
 		delay(100);
 
-		while (TelnetClient.available()) {
+		while (TelnetClient.available())
+		{
 			TelnetClient.read();
 		}
 
 		// Connection event
 
 		onConnection(true);
-
 	}
 
 	// Is client connected ? (to reduce overhead in active)
@@ -413,11 +439,13 @@ void RemoteDebug::handle() {
 
 	// Get command over telnet
 
-	if (_connected) {
+	if (_connected)
+	{
 
 		char last = ' '; // To avoid process two times the "\r\n"
 
-		while (TelnetClient.available()) {  // get data from Client
+		while (TelnetClient.available())
+		{ // get data from Client
 
 			// Get character
 
@@ -425,46 +453,49 @@ void RemoteDebug::handle() {
 
 			// Newline (CR or LF) - once one time if (\r\n) - 26/07/17
 
-			if (isCRLF(character) == true) {
+			if (isCRLF(character) == true)
+			{
 
-				if (isCRLF(last) == false) {
+				if (isCRLF(last) == false)
+				{
 
 					// Process the command
 
-					if (_command.length() > 0) {
+					if (_command.length() > 0)
+					{
 
 						_lastCommand = _command; // Store the last command
 						processCommand();
-
 					}
 				}
 
 				_command = ""; // Init it for next command
-
-			} else if (isPrintable(character)) {
+			}
+			else if (isPrintable(character))
+			{
 
 				// Concat
 
 				_command.concat(character);
-
 			}
 
 			// Last char
 
 			last = character;
 		}
-
 	}
 
 	// Client connected ?
 
 	boolean connected = _connected;
-	if (connected) {
+	if (connected)
+	{
 
 #ifdef CLIENT_BUFFERING
 		// Client buffering - send data in intervals to avoid delays or if its is too big
 
-		if ((millis() - _lastTimeSend) >= DELAY_TO_SEND || _sizeBufferSend >= MAX_SIZE_SEND) {
+		if ((millis() - _lastTimeSend) >= DELAY_TO_SEND || _sizeBufferSend >= MAX_SIZE_SEND)
+		{
 			debugPrint(_bufferSend);
 			_bufferSend = "";
 			_sizeBufferSend = 0;
@@ -480,11 +511,13 @@ void RemoteDebug::handle() {
 
 		uint32_t maxTime = MAX_TIME_INACTIVE; // Normal
 
-		if (_password != "" && !_passwordOk) { // Request password - 18/08/08
+		if (_password != "" && !_passwordOk)
+		{					 // Request password - 18/08/08
 			maxTime = 60000; // One minute to password
 		}
 
-		if ((millis() - _lastTimeCommand) > maxTime) {
+		if ((millis() - _lastTimeCommand) > maxTime)
+		{
 
 			debugPrintln("* Closing session by inactivity");
 
@@ -503,23 +536,28 @@ void RemoteDebug::handle() {
 
 	// Changed handle debugger logic - 2018-03-01
 
-	if (_callbackDbgEnabled && _callbackDbgHandle) { // Calbacks ok ?
+	if (_callbackDbgEnabled && _callbackDbgHandle)
+	{ // Calbacks ok ?
 
 		boolean callHandle = false;
 
-		if (dbgLastConnected != connected) { // Change connection -> always call
+		if (dbgLastConnected != connected)
+		{ // Change connection -> always call
 
 			dbgLastConnected = connected;
 			callHandle = true;
+		}
+		else if (millis() >= dbgTimeHandle)
+		{
 
-		} else if (millis() >= dbgTimeHandle) {
-
-			if (_callbackDbgEnabled()) { // Only if it is enabled
+			if (_callbackDbgEnabled())
+			{ // Only if it is enabled
 				callHandle = true;
 			}
 		}
 
-		if (callHandle) {
+		if (callHandle)
+		{
 
 			// Call the handle
 
@@ -532,28 +570,33 @@ void RemoteDebug::handle() {
 	}
 #endif
 
-	//DV("*handle time: ", (millis() - timeBegin));
+	// DV("*handle time: ", (millis() - timeBegin));
 }
-
 
 // Disconnect client
 
-void RemoteDebug::disconnect(boolean onlyTelnetClient) {
+void RemoteDebug::disconnect(boolean onlyTelnetClient)
+{
 
 	// Disconnect
 
-	if (onlyTelnetClient) {
-		if (_connected) {
+	if (onlyTelnetClient)
+	{
+		if (_connected)
+		{
 			TelnetClient.println("* Closing client connection ..."); // this is to web app new conn not receive it
 		}
-	} else {
+	}
+	else
+	{
 		debugPrintln("* Closing client connection ...");
 	}
 
 	_silence = false;
 	_silenceTimeout = 0;
 
-	if (_connected) { // By telnet
+	if (_connected)
+	{ // By telnet
 		TelnetClient.stop();
 		_connected = false;
 	}
@@ -561,22 +604,23 @@ void RemoteDebug::disconnect(boolean onlyTelnetClient) {
 
 // Connection/disconnection event
 
-void RemoteDebug::onConnection(boolean connected) {
+void RemoteDebug::onConnection(boolean connected)
+{
 
 	// Clear variables
 
 	D("rd onconn %d", connected);
 
-	_bufferPrint = "";			// Clean buffer
+	_bufferPrint = ""; // Clean buffer
 
 	_lastTimeCommand = millis(); // To mark time for inactivity
 
-	_command = "";				// Clear command
-	_lastCommand = "";			// Clear las command
+	_command = "";	   // Clear command
+	_lastCommand = ""; // Clear las command
 
-	_lastTimePrint = millis();	// Clear the time
+	_lastTimePrint = millis(); // Clear the time
 
-	_silence = false;			// No silence
+	_silence = false; // No silence
 	_silenceTimeout = 0;
 
 #ifdef CLIENT_BUFFERING
@@ -588,7 +632,8 @@ void RemoteDebug::onConnection(boolean connected) {
 
 	// Password request ? - 18/07/18
 
-	if (_password != "") {
+	if (_password != "")
+	{
 
 		_passwordOk = false;
 
@@ -603,12 +648,13 @@ void RemoteDebug::onConnection(boolean connected) {
 
 	// Process
 
-	if (connected) { // Connected ?
-
+	if (connected)
+	{ // Connected ?
 
 		// Callback
 
-		if (_callbackNewClient) {
+		if (_callbackNewClient)
+		{
 			_callbackNewClient();
 		}
 
@@ -620,7 +666,8 @@ void RemoteDebug::onConnection(boolean connected) {
 	}
 }
 
-boolean RemoteDebug::isConnected() {
+boolean RemoteDebug::isConnected()
+{
 
 	// Is connected
 
@@ -629,27 +676,30 @@ boolean RemoteDebug::isConnected() {
 
 // Send to serial too (use only if need)
 
-void RemoteDebug::setSerialEnabled(boolean enable) {
+void RemoteDebug::setSerialEnabled(boolean enable)
+{
 
 	_serialEnabled = enable;
-
 }
 
 // Allow ESP reset over telnet client
 
-void RemoteDebug::setResetCmdEnabled(boolean enable) {
+void RemoteDebug::setResetCmdEnabled(boolean enable)
+{
 	_resetCommandEnabled = enable;
 }
 
 // Show time in millis
 
-void RemoteDebug::showTime(boolean show) {
+void RemoteDebug::showTime(boolean show)
+{
 	_showTime = show;
 }
 
 // Show profiler - time in millis between messages of debug
 
-void RemoteDebug::showProfiler(boolean show, uint32_t minTime) {
+void RemoteDebug::showProfiler(boolean show, uint32_t minTime)
+{
 	_showProfiler = show;
 	_minTimeShowProfiler = minTime;
 }
@@ -657,33 +707,37 @@ void RemoteDebug::showProfiler(boolean show, uint32_t minTime) {
 #ifdef ALPHA_VERSION // In test, not good yet
 // Automatic change to profiler level if time between handles is greater than n mills (0 - disable)
 
-void RemoteDebug::autoProfilerLevel(uint32_t millisElapsed) {
+void RemoteDebug::autoProfilerLevel(uint32_t millisElapsed)
+{
 	_autoLevelProfiler = millisElapsed;
 }
 #endif
 
 // Show debug level
 
-void RemoteDebug::showDebugLevel(boolean show) {
+void RemoteDebug::showDebugLevel(boolean show)
+{
 	_showDebugLevel = show;
 }
 
 // Show colors
 
-void RemoteDebug::showColors(boolean show) {
+void RemoteDebug::showColors(boolean show)
+{
 	_showColors = show;
 }
 
 // Show in raw mode - only data ?
 
-void RemoteDebug::showRaw(boolean show) {
+void RemoteDebug::showRaw(boolean show)
+{
 	_showRaw = show;
 }
 
-
 // Is active ? client telnet connected and level of debug equal or greater then set by user in telnet
 
-boolean RemoteDebug::isActive(uint8_t debugLevel) {
+boolean RemoteDebug::isActive(uint8_t debugLevel)
+{
 
 	// Active ->
 	//	Not in silence (new)
@@ -692,56 +746,60 @@ boolean RemoteDebug::isActive(uint8_t debugLevel) {
 	//	Serial enabled (use only if need)
 	//	Password ok (if enabled) - 18/08/18
 
-
 	boolean ret = (debugLevel >= _clientDebugLevel &&
-					!_silence &&
-					(_connected || _serialEnabled));
+				   !_silence &&
+				   (_connected || _serialEnabled));
 
-	if (ret) {
+	if (ret)
+	{
 		_lastDebugLevel = debugLevel;
 	}
 
 	return ret;
-
 }
 
 // Set help for commands over telnet set by sketch
 
-void RemoteDebug::setHelpProjectsCmds(String help) {
+void RemoteDebug::setHelpProjectsCmds(String help)
+{
 
 	_helpProjectCmds = help;
-
 }
 
 // Set callback of sketch function to process project messages
 
-void RemoteDebug::setCallBackProjectCmds(void (*callback)()) {
+void RemoteDebug::setCallBackProjectCmds(void (*callback)())
+{
 	_callbackProjectCmds = callback;
 }
 
-void RemoteDebug::setCallBackNewClient(void (*callback)()) {
+void RemoteDebug::setCallBackNewClient(void (*callback)())
+{
 	_callbackNewClient = callback;
 }
 
 // Print
 
-size_t RemoteDebug::write(const uint8_t *buffer, size_t size) {
+size_t RemoteDebug::write(const uint8_t *buffer, size_t size)
+{
 
 	// Process buffer
 	// Insert due a write bug w/ latest Esp8266 SDK - 17/08/18
 
-	for(size_t i=0; i<size; i++) {
-		write((uint8_t) buffer[i]);
+	for (size_t i = 0; i < size; i++)
+	{
+		write((uint8_t)buffer[i]);
 	}
 
 	return size;
 }
 
-size_t RemoteDebug::write(uint8_t character) {
+size_t RemoteDebug::write(uint8_t character)
+{
 
 	// Write logic
 
-    uint32_t elapsed = 0;
+	uint32_t elapsed = 0;
 
 	size_t ret = 0;
 
@@ -755,46 +813,54 @@ size_t RemoteDebug::write(uint8_t character) {
 
 	// In silente mode now ?
 
-	if (_silence) {
+	if (_silence)
+	{
 		return 0;
 	}
 
 	// New line writted before ?
 
-	if (_newLine ) {
+	if (_newLine)
+	{
 
 #ifdef DEBUGGER_ENABLED
 
-	// For Simple software debugger - based on SerialDebug Library
+		// For Simple software debugger - based on SerialDebug Library
 
-	// Changed handle debugger logic - 2018-02-29
+		// Changed handle debugger logic - 2018-02-29
 
-	if (!_showRaw) { // Not for raw mode
+		if (!_showRaw)
+		{ // Not for raw mode
 
-		if (_callbackDbgEnabled && _callbackDbgEnabled()) { // Callbacks ok
+			if (_callbackDbgEnabled && _callbackDbgEnabled())
+			{ // Callbacks ok
 
-			if (connected && _callbackDbgEnabled()) { // Only call if is connected and debugger is enabled
+				if (connected && _callbackDbgEnabled())
+				{ // Only call if is connected and debugger is enabled
 
-				// Call the handle
+					// Call the handle
 
-				_callbackDbgHandle(false);
+					_callbackDbgHandle(false);
+				}
 			}
 		}
-	}
 #endif
 
 		String show = "";
 
 		// Not in raw mode (only data)
 
-		if (!_showRaw) {
+		if (!_showRaw)
+		{
 
 #ifdef COLOR_NEW_SYSTEM
 
 			// New color system
 
-			if (_showColors) {
-				switch (_lastDebugLevel) {
+			if (_showColors)
+			{
+				switch (_lastDebugLevel)
+				{
 				case VERBOSE:
 					show = COLOR_VERBOSE;
 					break;
@@ -816,8 +882,10 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Show debug level
 
-			if (_showDebugLevel) {
-				switch (_lastDebugLevel) {
+			if (_showDebugLevel)
+			{
+				switch (_lastDebugLevel)
+				{
 				case PROFILER:
 					show.concat("(P");
 					break;
@@ -841,8 +909,10 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Show time in millis
 
-			if (_showTime) {
-				if (show != "") {
+			if (_showTime)
+			{
+				if (show != "")
+				{
 					show.concat(" ");
 				}
 				show.concat("t:");
@@ -852,28 +922,40 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Show profiler (time between messages)
 
-			if (_showProfiler) {
+			if (_showProfiler)
+			{
 				elapsed = (millis() - _lastTimePrint);
 				boolean resetColors = false;
-				if (show != "") {
+				if (show != "")
+				{
 					show.concat(" ");
 				}
-				if (_showColors) {
-					if (elapsed < 250) {
+				if (_showColors)
+				{
+					if (elapsed < 250)
+					{
 						; // not color this
-					} else if (elapsed < 1000) {
+					}
+					else if (elapsed < 1000)
+					{
 						show.concat(COLOR_BLACK);
 						show.concat(COLOR_BACKGROUND_GREEN);
 						resetColors = true;
-					} else if (elapsed < 3000) {
+					}
+					else if (elapsed < 3000)
+					{
 						show.concat(COLOR_BLACK);
 						show.concat(COLOR_BACKGROUND_YELLOW);
 						resetColors = true;
-					} else if (elapsed < 5000) {
+					}
+					else if (elapsed < 5000)
+					{
 						show.concat(COLOR_WHITE);
 						show.concat(COLOR_BACKGROUND_MAGENTA);
 						resetColors = true;
-					} else {
+					}
+					else
+					{
 						show.concat(COLOR_WHITE);
 						show.concat(COLOR_BACKGROUND_RED);
 						resetColors = true;
@@ -882,7 +964,8 @@ size_t RemoteDebug::write(uint8_t character) {
 				show.concat("p:^");
 				show.concat(formatNumber(elapsed, 4));
 				show.concat("ms");
-				if (resetColors) {
+				if (resetColors)
+				{
 					show.concat(COLOR_RESET);
 #ifdef COLOR_NEW_SYSTEM
 					show.concat(colorLevel);
@@ -895,10 +978,13 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Show debug level
 
-			if (_showDebugLevel) {
+			if (_showDebugLevel)
+			{
 				show = "(";
-				if (_showColors == false) {
-					switch (_lastDebugLevel) {
+				if (_showColors == false)
+				{
+					switch (_lastDebugLevel)
+					{
 					case PROFILER:
 						show.concat("P");
 						break;
@@ -918,8 +1004,11 @@ size_t RemoteDebug::write(uint8_t character) {
 						show.concat("E");
 						break;
 					}
-				} else {
-					switch (_lastDebugLevel) {
+				}
+				else
+				{
+					switch (_lastDebugLevel)
+					{
 					case PROFILER:
 						show.concat("P");
 						break;
@@ -943,7 +1032,8 @@ size_t RemoteDebug::write(uint8_t character) {
 						show.concat("E");
 						break;
 					}
-					if (show.length() > 1) {
+					if (show.length() > 1)
+					{
 						show.concat(COLOR_RESET);
 					}
 				}
@@ -951,7 +1041,8 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Show time in millis
 
-			if (_showTime) {
+			if (_showTime)
+			{
 				if (show != "")
 					show.concat(" ");
 				show.concat("t:");
@@ -961,24 +1052,35 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			// Show profiler (time between messages)
 
-			if (_showProfiler) {
+			if (_showProfiler)
+			{
 				elapsed = (millis() - _lastTimePrint);
 				boolean resetColors = false;
 				if (show != "")
 					show.concat(" ");
-				if (_showColors) {
-					if (elapsed < 250) {
+				if (_showColors)
+				{
+					if (elapsed < 250)
+					{
 						; // not color this
-					} else if (elapsed < 1000) {
+					}
+					else if (elapsed < 1000)
+					{
 						show.concat(COLOR_BACKGROUND_CYAN);
 						resetColors = true;
-					} else if (elapsed < 3000) {
+					}
+					else if (elapsed < 3000)
+					{
 						show.concat(COLOR_BACKGROUND_YELLOW);
 						resetColors = true;
-					} else if (elapsed < 5000) {
+					}
+					else if (elapsed < 5000)
+					{
 						show.concat(COLOR_BACKGROUND_MAGENTA);
 						resetColors = true;
-					} else {
+					}
+					else
+					{
 						show.concat(COLOR_BACKGROUND_RED);
 						resetColors = true;
 					}
@@ -986,15 +1088,17 @@ size_t RemoteDebug::write(uint8_t character) {
 				show.concat("p:^");
 				show.concat(formatNumber(elapsed, 4));
 				show.concat("ms");
-				if (resetColors) {
+				if (resetColors)
+				{
 					show.concat(COLOR_RESET);
 				}
 				_lastTimePrint = millis();
 			}
 
 #endif
-
-		} else { // Raw mode - only data - e.g. used for debugger messages
+		}
+		else
+		{ // Raw mode - only data - e.g. used for debugger messages
 
 #ifdef COLOR_NEW_SYSTEM
 			show.concat(COLOR_RAW);
@@ -1003,21 +1107,23 @@ size_t RemoteDebug::write(uint8_t character) {
 
 		// Show anything ?
 
-		if (show != "") {
+		if (show != "")
+		{
 
-			if (!_showRaw) {
+			if (!_showRaw)
+			{
 				show.concat(") ");
 			}
 
 			// Write to telnet buffered
 
-			if (connected || _serialEnabled) {  // send data to Client
+			if (connected || _serialEnabled)
+			{ // send data to Client
 				_bufferPrint = show;
 			}
 		}
 
 		_newLine = false;
-
 	}
 
 	// Print ?
@@ -1026,42 +1132,49 @@ size_t RemoteDebug::write(uint8_t character) {
 
 	// New line ?
 
-	if (character == '\n') {
+	if (character == '\n')
+	{
 
 		_bufferPrint.concat("\r"); // Para clientes windows - 29/01/17
 
 		_newLine = true;
 		doPrint = true;
-
-	} else if (_bufferPrint.length() == BUFFER_PRINT) { // Limit of buffer
+	}
+	else if (_bufferPrint.length() == BUFFER_PRINT)
+	{ // Limit of buffer
 
 		doPrint = true;
-
 	}
 
 	// Write to telnet Buffered
 
-	_bufferPrint.concat((char) character);
+	_bufferPrint.concat((char)character);
 
 	// Send the characters buffered by print.h
 
-	if (doPrint) { // Print the buffer
+	if (doPrint)
+	{ // Print the buffer
 
 		boolean noPrint = false;
 
-		if (_showProfiler && elapsed < _minTimeShowProfiler) { // Profiler time Minimal
+		if (_showProfiler && elapsed < _minTimeShowProfiler)
+		{ // Profiler time Minimal
 			noPrint = true;
-		} else if (_filterActive) { // Check filter before print
+		}
+		else if (_filterActive)
+		{ // Check filter before print
 
 			String aux = _bufferPrint;
 			aux.toLowerCase();
 
-			if (aux.indexOf(_filter) == -1) { // not find -> no print
+			if (aux.indexOf(_filter) == -1)
+			{ // not find -> no print
 				noPrint = true;
 			}
 		}
 
-		if (noPrint == false) {
+		if (noPrint == false)
+		{
 
 #ifdef COLOR_NEW_SYSTEM
 			_bufferPrint.concat(COLOR_RESET);
@@ -1070,12 +1183,13 @@ size_t RemoteDebug::write(uint8_t character) {
 
 			boolean sendToClient = connected;
 
-			if (_password != "" && !_passwordOk) { // With no password -> no telnet output - 2018-10-19
+			if (_password != "" && !_passwordOk)
+			{ // With no password -> no telnet output - 2018-10-19
 				sendToClient = false;
 			}
 
-			if (sendToClient) {  // send data to Client
-
+			if (sendToClient)
+			{ // send data to Client
 
 #ifndef CLIENT_BUFFERING
 				debugPrint(_bufferPrint);
@@ -1085,7 +1199,8 @@ size_t RemoteDebug::write(uint8_t character) {
 
 				// Buffer too big ?
 
-				if ((_sizeBufferSend + size) >= MAX_SIZE_SEND) {
+				if ((_sizeBufferSend + size) >= MAX_SIZE_SEND)
+				{
 
 					// Send it
 
@@ -1098,11 +1213,12 @@ size_t RemoteDebug::write(uint8_t character) {
 				// Add to buffer of send
 
 				_bufferSend.concat(_bufferPrint);
-				_sizeBufferSend+=size;
+				_sizeBufferSend += size;
 
 				// Client buffering - send data in intervals to avoid delays or if its is too big
 				// Not for raw mode
-				if (_showRaw || (millis() - _lastTimeSend) >= DELAY_TO_SEND) {
+				if (_showRaw || (millis() - _lastTimeSend) >= DELAY_TO_SEND)
+				{
 					debugPrint(_bufferSend);
 					_bufferSend = "";
 					_sizeBufferSend = 0;
@@ -1112,8 +1228,42 @@ size_t RemoteDebug::write(uint8_t character) {
 			}
 
 			// Echo to serial (not buffering it)
+			if (_serialEnabled)
+			{
+				// remove color codes before printing to serial
+				const char *color_codes[] = {
+					COLOR_RESET,
+					COLOR_BLACK,
+					COLOR_RED,
+					COLOR_GREEN,
+					COLOR_YELLOW,
+					COLOR_BLUE,
+					COLOR_MAGENTA,
+					COLOR_CYAN,
+					COLOR_WHITE,
+					COLOR_DARK_BLACK,
+					COLOR_LIGHT_RED,
+					COLOR_LIGHT_GREEN,
+					COLOR_LIGHT_YELLOW,
+					COLOR_LIGHT_BLUE,
+					COLOR_LIGHT_MAGENTA,
+					COLOR_LIGHT_CYAN,
+					COLOR_LIGHT_WHITE,
+					COLOR_BACKGROUND_BLACK,
+					COLOR_BACKGROUND_RED,
+					COLOR_BACKGROUND_GREEN,
+					COLOR_BACKGROUND_YELLOW,
+					COLOR_BACKGROUND_BLUE,
+					COLOR_BACKGROUND_MAGENTA,
+					COLOR_BACKGROUND_CYAN,
+					COLOR_BACKGROUND_WHITE};
 
-			if (_serialEnabled) {
+				const int num_color_codes = sizeof(color_codes) / sizeof(color_codes[0]);
+
+				for (int i = 0; i < num_color_codes; i++)
+				{
+					_bufferPrint.replace(color_codes[i], "");
+				}
 				Serial.print(_bufferPrint);
 			}
 		}
@@ -1131,10 +1281,10 @@ size_t RemoteDebug::write(uint8_t character) {
 
 ////// Private
 
-
 // Show help of commands
 
-void RemoteDebug::showHelp() {
+void RemoteDebug::showHelp()
+{
 
 	// Show the initial message
 
@@ -1142,7 +1292,8 @@ void RemoteDebug::showHelp() {
 
 	// Password request ? - 04/03/18
 
-	if (_password != "" && !_passwordOk) {
+	if (_password != "" && !_passwordOk)
+	{
 
 		help.concat("\r\n");
 		help.concat("* Please enter with a password to access");
@@ -1159,7 +1310,7 @@ void RemoteDebug::showHelp() {
 		debugPrint(help);
 
 		return;
-}
+	}
 
 	// Show help
 
@@ -1198,7 +1349,7 @@ void RemoteDebug::showHelp() {
 	help.concat("    t -> show time (millis)\r\n");
 	help.concat("    profiler:\r\n");
 	help.concat(
-			"      p      -> show time between actual and last message (in millis)\r\n");
+		"      p      -> show time between actual and last message (in millis)\r\n");
 	help.concat("      p min  -> show only if time is this minimal\r\n");
 	help.concat("      P time -> set debug level to profiler\r\n");
 #ifdef ALPHA_VERSION // In test, not good yet
@@ -1211,18 +1362,21 @@ void RemoteDebug::showHelp() {
 #if defined(ESP8266)
 	help.concat("    cpu80  -> ESP8266 CPU a 80MHz\r\n");
 	help.concat("    cpu160 -> ESP8266 CPU a 160MHz\r\n");
-	if (_resetCommandEnabled) {
+	if (_resetCommandEnabled)
+	{
 		help.concat("    reset -> reset the ESP8266\r\n");
 	}
 #elif defined(ESP32)
-	if (_resetCommandEnabled) {
+	if (_resetCommandEnabled)
+	{
 		help.concat("    reset -> reset the ESP32\r\n");
 	}
 #endif
 
 	// Callbacks
 
-	if (_helpProjectCmds != "" && (_callbackProjectCmds)) {
+	if (_helpProjectCmds != "" && (_callbackProjectCmds))
+	{
 		help.concat("\r\n");
 		help.concat("    * Project commands:\r\n");
 		String show = "\r\n";
@@ -1234,7 +1388,8 @@ void RemoteDebug::showHelp() {
 #ifdef DEBUGGER_ENABLED
 	// Get help for the debugger
 
-	if (_callbackDbgHelp) {
+	if (_callbackDbgHelp)
+	{
 		help.concat("\r\n");
 		help.concat(_callbackDbgHelp());
 	}
@@ -1243,7 +1398,7 @@ void RemoteDebug::showHelp() {
 
 	help.concat("\r\n");
 	help.concat(
-			"* Please type the command and press enter to execute.(? or h for this help)\r\n");
+		"* Please type the command and press enter to execute.(? or h for this help)\r\n");
 	help.concat("***\r\n");
 
 	// Send to client
@@ -1253,20 +1408,23 @@ void RemoteDebug::showHelp() {
 
 // Get last command received
 
-String RemoteDebug::getLastCommand() {
+String RemoteDebug::getLastCommand()
+{
 
 	return _lastCommand;
 }
 
 // Clear the last command received
 
-void RemoteDebug::clearLastCommand() {
+void RemoteDebug::clearLastCommand()
+{
 	_lastCommand = "";
 }
 
 // Process user command over telnet or web socket
 
-void RemoteDebug::processCommand() {
+void RemoteDebug::processCommand()
+{
 
 	static uint32_t lastTime = 0;
 
@@ -1274,55 +1432,60 @@ void RemoteDebug::processCommand() {
 	// Workaround -> check time
 	// TODO: see correction for this
 
-	if (lastTime > 0 && (millis() - lastTime) < 500) {
+	if (lastTime > 0 && (millis() - lastTime) < 500)
+	{
 		debugPrintln("* Bug workaround: ignoring command repeating");
 		return;
 	}
 	lastTime = millis();
 
-	D("cmd: %s" , _command.c_str());
+	D("cmd: %s", _command.c_str());
 
 	// Password request ? - 18/07/18
 
-	if (_password != "" && !_passwordOk) { // Process the password - 18/08/18 - adjust in 04/09/08 and 2018-10-19
+	if (_password != "" && !_passwordOk)
+	{ // Process the password - 18/08/18 - adjust in 04/09/08 and 2018-10-19
 
-		if (_command == _password) {
+		if (_command == _password)
+		{
 
 			debugPrintln("* Password ok, allowing access now...");
 
 			_passwordOk = true;
 
-#ifdef ALPHA_VERSION // In test, not good yet
+#ifdef ALPHA_VERSION									 // In test, not good yet
 			sendTelnetCommand(TELNET_WILL, TELNET_ECHO); // Send a command to telnet to restore echoes = 18/08/18
 #endif
 			showHelp();
-
-		} else {
+		}
+		else
+		{
 
 			debugPrintln("* Wrong password!");
 
-	#ifdef REMOTEDEBUG_PWD_ATTEMPTS
+#ifdef REMOTEDEBUG_PWD_ATTEMPTS
 
 			_passwordAttempt++;
 
-			if (_passwordAttempt > REMOTEDEBUG_PWD_ATTEMPTS) {
+			if (_passwordAttempt > REMOTEDEBUG_PWD_ATTEMPTS)
+			{
 
 				debugPrintln("* Many attempts. Closing session now.");
 
 				// Disconnect
 
 				disconnect();
-
-			} else {
+			}
+			else
+			{
 
 				showHelp();
 			}
 
-	#endif
+#endif
 		}
 
 		return;
-
 	}
 
 	// Process commands
@@ -1332,7 +1495,8 @@ void RemoteDebug::processCommand() {
 
 	String options = "";
 	uint8_t pos = _command.indexOf(" ");
-	if (pos > 0) {
+	if (pos > 0)
+	{
 		options = _command.substring(pos + 1);
 	}
 
@@ -1342,28 +1506,32 @@ void RemoteDebug::processCommand() {
 
 	// Get out of silent mode
 
-	if (_command != "s" && _silence) {
+	if (_command != "s" && _silence)
+	{
 
 		silence(false, true);
 	}
 
 	// Process the command
 
-	if (_command == "h" || _command == "?") {
+	if (_command == "h" || _command == "?")
+	{
 
 		// Show help
 
 		showHelp();
-
-	} else if (_command == "q") {
+	}
+	else if (_command == "q")
+	{
 
 		// Quit
 
 		debugPrintln("* Closing client connection ...");
 
 		TelnetClient.stop();
-
-	} else if (_command == "m") {
+	}
+	else if (_command == "m")
+	{
 
 		uint32_t free = ESP.getFreeHeap();
 
@@ -1371,15 +1539,17 @@ void RemoteDebug::processCommand() {
 		debugPrintln(free);
 
 #if defined(ESP8266)
-
-	} else if (_command == "cpu80") {
+	}
+	else if (_command == "cpu80")
+	{
 
 		// Change ESP8266 CPU para 80 MHz
 
 		system_update_cpu_freq(80);
 		debugPrintln("CPU ESP8266 changed to: 80 MHz");
-
-	} else if (_command == "cpu160") {
+	}
+	else if (_command == "cpu160")
+	{
 
 		// Change ESP8266 CPU para 160 MHz
 
@@ -1387,75 +1557,80 @@ void RemoteDebug::processCommand() {
 		debugPrintln("CPU ESP8266 changed to: 160 MHz");
 
 #endif
-
-	} else if (_command == "v") {
+	}
+	else if (_command == "v")
+	{
 
 		// Debug level
 
 		_clientDebugLevel = VERBOSE;
 
 		debugPrintln("* Debug level set to Verbose");
-
-	} else if (_command == "d") {
+	}
+	else if (_command == "d")
+	{
 
 		// Debug level
 
 		_clientDebugLevel = DEBUG;
 
 		debugPrintln("* Debug level set to Debug");
-
-
-	} else if (_command == "i") {
+	}
+	else if (_command == "i")
+	{
 
 		// Debug level
 
 		_clientDebugLevel = INFO;
 
 		debugPrintln("* Debug level set to Info");
-
-
-	} else if (_command == "w") {
+	}
+	else if (_command == "w")
+	{
 
 		// Debug level
 
 		_clientDebugLevel = WARNING;
 
 		debugPrintln("* Debug level set to Warning");
-
-
-	} else if (_command == "e") {
+	}
+	else if (_command == "e")
+	{
 
 		// Debug level
 
 		_clientDebugLevel = ERROR;
 
 		debugPrintln("* Debug level set to Error");
-
-
-	} else if (_command == "l") {
+	}
+	else if (_command == "l")
+	{
 
 		// Show debug level
 
 		_showDebugLevel = !_showDebugLevel;
 
 		debugPrintf("* Show debug level: %s\r\n",
-				(_showDebugLevel) ? "On" : "Off");
-
-	} else if (_command == "t") {
+					(_showDebugLevel) ? "On" : "Off");
+	}
+	else if (_command == "t")
+	{
 
 		// Show time
 
 		_showTime = !_showTime;
 
 		debugPrintf("* Show time: %s\r\n", (_showTime) ? "On" : "Off");
-
-	} else if (_command == "s") {
+	}
+	else if (_command == "s")
+	{
 
 		// Toogle silence (new) = 28/08/18
 
 		silence(!_silence);
-
-	} else if (_command == "p") {
+	}
+	else if (_command == "p")
+	{
 
 		// Show profiler
 
@@ -1463,81 +1638,96 @@ void RemoteDebug::processCommand() {
 		_minTimeShowProfiler = 0;
 
 		debugPrintf("* Show profiler: %s\r\n",
-				(_showProfiler) ? "On" : "Off");
-
-	} else if (_command.startsWith("p ")) {
+					(_showProfiler) ? "On" : "Off");
+	}
+	else if (_command.startsWith("p "))
+	{
 
 		// Show profiler with minimal time
 
-		if (options.length() > 0) { // With minimal time
+		if (options.length() > 0)
+		{ // With minimal time
 			int32_t aux = options.toInt();
-			if (aux > 0) { // Valid number
+			if (aux > 0)
+			{ // Valid number
 				_showProfiler = true;
 				_minTimeShowProfiler = aux;
 				debugPrintf(
-						"* Show profiler: On (with minimal time: %u)\r\n",
-						_minTimeShowProfiler);
+					"* Show profiler: On (with minimal time: %u)\r\n",
+					_minTimeShowProfiler);
 			}
 		}
-
-	} else if (_command == "P") {
+	}
+	else if (_command == "P")
+	{
 
 		// Debug level profile
 
 		_levelBeforeProfiler = _clientDebugLevel;
 		_clientDebugLevel = PROFILER;
 
-		if (_showProfiler == false) {
+		if (_showProfiler == false)
+		{
 			_showProfiler = true;
 		}
 
 		_levelProfilerDisable = 1000; // Default
 
-		if (options.length() > 0) { // With time of disable
+		if (options.length() > 0)
+		{ // With time of disable
 			int32_t aux = options.toInt();
-			if (aux > 0) { // Valid number
+			if (aux > 0)
+			{ // Valid number
 				_levelProfilerDisable = millis() + aux;
 			}
 		}
 
 		debugPrintf(
-				"* Debug level set to Profiler (disable in %u millis)\r\n",
-				_levelProfilerDisable);
-
-	} else if (_command == "A") {
+			"* Debug level set to Profiler (disable in %u millis)\r\n",
+			_levelProfilerDisable);
+	}
+	else if (_command == "A")
+	{
 
 		// Auto debug level profile
 
 		_autoLevelProfiler = 1000; // Default
 
-		if (options.length() > 0) { // With time of disable
+		if (options.length() > 0)
+		{ // With time of disable
 			int32_t aux = options.toInt();
-			if (aux > 0) { // Valid number
+			if (aux > 0)
+			{ // Valid number
 				_autoLevelProfiler = aux;
 			}
 		}
 
 		debugPrintf(
-				"* Auto profiler debug level active (time >= %u millis)\r\n",
-				_autoLevelProfiler);
-
-	} else if (_command == "c") {
+			"* Auto profiler debug level active (time >= %u millis)\r\n",
+			_autoLevelProfiler);
+	}
+	else if (_command == "c")
+	{
 
 		// Show colors
 
 		_showColors = !_showColors;
 
 		debugPrintf("* Show colors: %s\r\n",
-				(_showColors) ? "On" : "Off");
-
-	} else if (_command.startsWith("filter ") && options.length() > 0) {
+					(_showColors) ? "On" : "Off");
+	}
+	else if (_command.startsWith("filter ") && options.length() > 0)
+	{
 
 		setFilter(options);
-
-	} else if (_command == "nofilter") {
+	}
+	else if (_command == "nofilter")
+	{
 
 		setNoFilter();
-	} else if (_command == "reset" && _resetCommandEnabled) {
+	}
+	else if (_command == "reset" && _resetCommandEnabled)
+	{
 
 		debugPrintln("* Reset ...");
 
@@ -1559,8 +1749,9 @@ void RemoteDebug::processCommand() {
 		ESP.restart();
 
 #ifdef DEBUGGER_ENABLED
-
-	} else if (!_callbackDbgProcessCmd && _command.startsWith("dbg")) {
+	}
+	else if (!_callbackDbgProcessCmd && _command.startsWith("dbg"))
+	{
 
 		// Show a message of debugger not is active
 
@@ -1569,32 +1760,35 @@ void RemoteDebug::processCommand() {
 		debugPrintln("* https://github.com/JoaoLopesF/RemoteDebugger");
 
 #endif
-
-	} else {
+	}
+	else
+	{
 
 		// Callbacks
 
 #ifdef DEBUGGER_ENABLED
 		// Process commands for the debugger
 
-		if (_callbackDbgProcessCmd) {
+		if (_callbackDbgProcessCmd)
+		{
 			_callbackDbgProcessCmd();
 		}
 #endif
 
 		// Project commands - set by programmer
 
-		if (_callbackProjectCmds) {
+		if (_callbackProjectCmds)
+		{
 
 			_callbackProjectCmds();
-
 		}
 	}
 }
 
 // Filter
 
-void RemoteDebug::setFilter(String filter) {
+void RemoteDebug::setFilter(String filter)
+{
 
 	_filter = filter;
 	_filter.toLowerCase(); // TODO: option to case insensitive ?
@@ -1602,31 +1796,35 @@ void RemoteDebug::setFilter(String filter) {
 
 	debugPrint("* Debug: Filter active: ");
 	debugPrintln(_filter);
-
 }
 
-void RemoteDebug::setNoFilter() {
+void RemoteDebug::setNoFilter()
+{
 
 	_filter = "";
 	_filterActive = false;
 
 	debugPrintln("* Debug: Filter disabled");
-
 }
 
 // Silence
 
-void RemoteDebug::silence(boolean activate, boolean showMessage, boolean fromBreak, uint32_t timeout) {
+void RemoteDebug::silence(boolean activate, boolean showMessage, boolean fromBreak, uint32_t timeout)
+{
 
 	// Set silence and timeout
 
-	if (showMessage) {
+	if (showMessage)
+	{
 
-		if (activate) {
+		if (activate)
+		{
 
 			debugPrintln("* Debug now is in silent mode!");
 			debugPrintln("* Press s again or another command to return show debugs");
-		} else {
+		}
+		else
+		{
 
 			debugPrintln("* Debug now exit from silent mode!");
 		}
@@ -1635,26 +1833,31 @@ void RemoteDebug::silence(boolean activate, boolean showMessage, boolean fromBre
 	// Set it
 
 	_silence = activate;
-	_silenceTimeout = (timeout == 0)?0:(millis() + timeout);
+	_silenceTimeout = (timeout == 0) ? 0 : (millis() + timeout);
 }
 
-boolean RemoteDebug::isSilence() {
+boolean RemoteDebug::isSilence()
+{
 
 	return _silence;
 }
 
 // Format numbers
 
-String RemoteDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
+String RemoteDebug::formatNumber(uint32_t value, uint8_t size, char insert)
+{
 
 	// Putting zeroes in left
 
 	String ret = "";
 
-	for (uint8_t i = 1; i <= size; i++) {
+	for (uint8_t i = 1; i <= size; i++)
+	{
 		uint32_t max = pow(10, i);
-		if (value < max) {
-			for (uint8_t j = (size - i); j > 0; j--) {
+		if (value < max)
+		{
+			for (uint8_t j = (size - i); j > 0; j--)
+			{
 				ret.concat(insert);
 			}
 			break;
@@ -1670,24 +1873,25 @@ String RemoteDebug::formatNumber(uint32_t value, uint8_t size, char insert) {
 
 // Get free memory
 
-uint32_t RemoteDebug::getFreeMemory() {
+uint32_t RemoteDebug::getFreeMemory()
+{
 
 	return ESP.getFreeHeap();
-
 }
 
 // Is CR or LF ?
 
-boolean RemoteDebug::isCRLF(char character) {
+boolean RemoteDebug::isCRLF(char character)
+{
 
 	return (character == '\r' || character == '\n');
-
 }
 
 // Expand characters as CR/LF to \\r, \\n
 // TODO: make this for another chars not printable
 
-String RemoteDebug::expand(String string) {
+String RemoteDebug::expand(String string)
+{
 
 	string.replace("\r", "\\r");
 	string.replace("\n", "\\n");
@@ -1699,7 +1903,8 @@ String RemoteDebug::expand(String string) {
 // Send telnet commands (as used with password request) - 18/08/18
 // Experimental code !
 
-void RemoteDebug::sendTelnetCommand(uint8_t command, uint8_t option) {
+void RemoteDebug::sendTelnetCommand(uint8_t command, uint8_t option)
+{
 
 	// Send a command to the telnet client
 
@@ -1712,7 +1917,7 @@ void RemoteDebug::sendTelnetCommand(uint8_t command, uint8_t option) {
 
 /////// All debug is disabled, this include is to define empty debug macros
 
-#include "RemoteDebug.h"		// This library
+#include "RemoteDebug.h" // This library
 
 #endif // DEBUG_DISABLED
 

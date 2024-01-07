@@ -367,7 +367,7 @@ void RemoteDebug::handle()
 			// Verify if the IP is same than actual conection
 
 			WiFiClient newClient; // @suppress("Abstract class cannot be instantiated")
-			newClient = TelnetServer.accepted();
+			newClient = TelnetServer.accept();
 			String ip = newClient.remoteIP().toString();
 
 			if (ip == TelnetClient.remoteIP().toString())
@@ -393,7 +393,7 @@ void RemoteDebug::handle()
 
 			// New TCP client
 
-			TelnetClient = TelnetServer.accepted();
+			TelnetClient = TelnetServer.accept();
 
 			// Password request ? - 18/07/18
 
